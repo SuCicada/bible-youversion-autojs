@@ -1,0 +1,29 @@
+{
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^6.20.0",
+    "@typescript-eslint/parser": "^6.20.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@devicefarmer/adbkit": "^3.2.6",
+    "@types/archiver": "^6.0.2",
+    "@types/stream-buffers": "^3.0.7",
+    "@types/walk": "^2.3.4",
+    "@types/websocket": "^1.0.10",
+    "archiver": "^6.0.1",
+    "stream-buffers": "^3.0.2",
+    "walk": "^2.3.15",
+    "websocket": "1.0.34"
+  }
+}
