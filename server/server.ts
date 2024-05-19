@@ -1,4 +1,5 @@
-import {AutoJsDebugServer, Device} from "../src/server/autojs-debug";
+// import {AutoJsDebugServer, Device} from "../src/server/autojs-debug";
+import {AutoJsDebugServer, Device} from "./autojs-debug";
 export function showInformationMessage(message: string) {
  console.log(message);
 }

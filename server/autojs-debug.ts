@@ -14,6 +14,7 @@ import buffer from "buffer";
 import os from 'os';
 import {AddressInfo} from "net";
 import {createOutputChannel, OutputChannel} from "./output-channel";
+import {Extension} from "./main";
 
 const DEBUG = true;
 
@@ -151,6 +152,7 @@ export class AutoJsDebugServer extends EventEmitter {
   public devices: Array<Device> = [];
   public project: Project = null;
   private logChannels: Map<string, OutputChannel>;
+  extension:Extension;
   private fileFilter = (relativePath: string, absPath: string) => {
     if (!this.project) {
       return true;
@@ -162,6 +164,8 @@ export class AutoJsDebugServer extends EventEmitter {
     super();
     this.logChannels = new Map<string, OutputChannel>();
     this.port = port;
+    this.extension = new Extension();
+    this.extension.server = this;
     this.httpServer = http.createServer((request, response) => {
       console.log(new Date() + ' Received request for ' + request.url);
       const urlObj = url.parse(request.url);
@@ -172,11 +176,19 @@ export class AutoJsDebugServer extends EventEmitter {
         response.end("this commond is:" + queryObj.cmd + "-->" + queryObj.path);
         this.emit('cmd', queryObj.cmd, queryObj.path);
         console.log(queryObj.cmd, queryObj.path);
+      } else if (urlObj.pathname == "/runOnDevice") {
+        this.handlePostRequest(request, response, (data) => {
+          this.extension.runOnDevice(data);
+          console.log(data);
+          response.writeHead(200);
+          response.end();
+        })
       } else {
         response.writeHead(404);
         response.end();
       }
     });
+
     const wsServer = new ws.server({httpServer: this.httpServer, keepalive: true, keepaliveInterval: 10000});
     wsServer.on('request', request => {
       const connection = request.accept();
@@ -185,6 +197,19 @@ export class AutoJsDebugServer extends EventEmitter {
       }
       this.newDevice(connection, "tcp", connection.socket.remoteAddress + ":" + connection.socket.remotePort)
     })
+  }
+
+  handlePostRequest(request: http.IncomingMessage, response: http.ServerResponse,
+                    handler: (data: object) => void) {
+    let body = '';
+    request.on('data', chunk => {
+      body += chunk.toString();
+    });
+    request.on('end', () => {
+      // console.log(body);
+      let data = JSON.parse(body);
+      handler(data);
+    });
   }
 
   getDeviceById(id: string): Device {
@@ -198,7 +223,7 @@ export class AutoJsDebugServer extends EventEmitter {
     logDebug(connection.state, "--->status")
     device
       .on("attach", (device) => {
-        console.log("newDevice", );
+        console.log("newDevice",);
         this.attachDevice(device);
         this.emit('new_device', device);
         const logChannel = this.newLogChannel(device);

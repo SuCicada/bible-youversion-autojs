@@ -5,7 +5,7 @@ export type FileFilter = (relativePath: string, filePath: string, stats: fs.Stat
 
 export class FileObserver {
     private dir: string;
-    private files = new Map<string, number>();
+    private files   = new Map<string, number>();
     private filter: FileFilter;
 
     constructor(dirPath: string, filter: FileFilter = (() => true)) {

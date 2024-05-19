@@ -64,3 +64,46 @@
 //     })
 //
 //
+import {AutoJsDebugServer, Device} from "./autojs-debug";
+
+export class Extension {
+    server: AutoJsDebugServer;
+    recentDevice: Device;
+
+    runOnDevice(data) {
+        this.selectDevice(device => this.runOn(device, data));
+    }
+
+    selectDevice(callback) {
+        let devices: Array<Device> = this.server.devices;
+        if (this.recentDevice) {
+            const i = devices.indexOf(this.recentDevice);
+            if (i > 0) {
+                devices = devices.slice(0);
+                devices[i] = devices[0];
+                devices[0] = this.recentDevice;
+            }
+        } else {
+            this.recentDevice = devices[0];
+        }
+        const names = devices.map(device => device.toString());
+        console.log(names);
+        let device = this.recentDevice;
+        callback(device);
+        // vscode.window.showQuickPick(names)
+        //   .then(select => {
+        //     const device = devices[names.indexOf(select)];
+        //     recentDevice = device;
+        //   });
+    }
+
+    runOn(target: AutoJsDebugServer | Device, data) {
+        // const editor = vscode.window.activeTextEditor;
+        target.sendCommand('run', data);
+        // {
+        //   'id': editor.document.fileName,
+        //   'name': editor.document.fileName,
+        //   'script': editor.document.getText()
+        // }
+    }
+}
