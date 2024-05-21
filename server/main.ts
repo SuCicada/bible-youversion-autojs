@@ -65,6 +65,7 @@
 //
 //
 import {AutoJsDebugServer, Device} from "./autojs-debug";
+process.env.DEBUG = 'false';
 
 export class Extension {
     server: AutoJsDebugServer;

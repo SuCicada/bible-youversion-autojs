@@ -6,14 +6,14 @@ function openApp() {
   let app_package = "com.sirma.mobile.bible.android"
   let res = app.launch(app_package);
   toastLog(res);
-  sleep(3000);
+  sleep(10 * 1000);
 }
 
 let dailyPrayData = {}
 
 let bibleWords = ""
 let bibleDescription = ""
-let bibleQuestion = {}
+let bibleQuestion = {question: "", answer: []}
 let biblePray = ""
 
 function dealBibleGuide() {
@@ -46,8 +46,13 @@ function dealBibleGuide() {
     enter()
     sleep(5000)
 
-    let res = className("ScrollView").findOne().children()[1]
+    // let res = className("ScrollView").findOne().children()[1]
+    let views = className("android.view.View").depth(8).find()
+    let res = views[1]
+    // console.log(res)
+    // console.log(res.contentDescription)
     bibleDescription = res.contentDescription
+
     sleep(2000)
     back()
     sleep(2000)
@@ -79,19 +84,24 @@ function dealBibleGuide() {
 // toastLog(res)
   }
 
-  open()
-  words()
-  nextPage()
-  page2()
-  nextPage()
-  furikaeri()
-  nextPage()
-  inori()
-  nextPage()
+  function run() {
+    open()
+    words()
+    nextPage()
+    page2()
+    nextPage()
+    furikaeri()
+    nextPage()
+    inori()
+    nextPage()
 
-  // end
-  back()
-  sleep(3000)
+    // end
+    back()
+    sleep(3000)
+  }
+
+  run()
+  // page2()
   // console.show();
   // console.log("wewewee")
   // log(bibleWords)
@@ -111,48 +121,78 @@ function dealPrayGuide() {
     // let res = click("聖句のガイド")
     let res = click(300, 1300)
     toastLog("click 祈りのガイド", res);
-    sleep(3000)
+    sleep(5000)
   }
 
-  function page1() {
+  function hajime() {
     let views = className("android.view.View").depth(8).findOne().children()
     prayPreface = views[1].contentDescription
+    log("prayPreface",prayPreface)
   }
 
   function nextPage() {
     let res = click(650, 1400)
     toastLog("click 次のページへ", res);
+    sleep(3000)
   }
 
   // 神をほめたたえましょう
   function homeitatae() {
     let views = className("android.view.View").depth(9).find()
     let title = views[0].contentDescription
-    let words = views[1].children().map(child => child.contentDescription).join("")
-    let description = views[2].contentDescription
-    // log(description)
-    prayPraiseGod = {
-      title, words, description
+    if (views.size() >= 3) {
+      let words = views[1].children().map(child => child.contentDescription).join("")
+      let description = views[2].contentDescription
+      prayPraiseGod = {
+        title, words, description
+      }
+    } else if (views.size() === 2) {
+      let description = views[1].contentDescription
+      prayPraiseGod = {
+        title, description,
+      }
     }
+    // let words = views[1].children().map(child => child.contentDescription).join("")
+    // let description = views[2].contentDescription
+    // log(description)
   }
 
   function omoukoto() {
     let views = className("android.view.View").depth(9).find()
     let title = views[0].contentDescription
-    let words = views[1].children().map(child => child.contentDescription).join("")
-    let description = views[2].contentDescription
-    prayThinking = {
-      title, words, description
+    if (views.size() >= 3) {
+      let words = views[1].children().map(child => child.contentDescription).join("")
+      let description = views[2].contentDescription
+      prayThinking = {
+        title, words, description
+      }
+    } else if (views.size() === 2) {
+      let description = views[1].contentDescription
+      prayThinking = {
+        title, description,
+      }
     }
   }
 
   function pray() {
     let views = className("android.view.View").depth(9).find()
     let title = views[0].contentDescription
-    let words = views[1].contentDescription
-    prayWords = {
-      title, words,
+    if (views.size() >= 3) {
+      let words = views[1].children().map(child => child.contentDescription).join("")
+      let description = views[2].contentDescription
+      prayWords = {
+        title, words, description
+      }
+    } else if (views.size() === 2) {
+      let description = views[1].contentDescription
+      prayWords = {
+        title, description,
+      }
     }
+    // let words = views[1].contentDescription
+    // prayWords = {
+    //   title, words,
+    // }
   }
 
   function musubi() {
@@ -160,47 +200,85 @@ function dealPrayGuide() {
     prayEnd = views[1].contentDescription
   }
 
-  // open()
-  // page1()
-  // nextPage()
-  // homeitatae()
-  // nextPage()
-  // omoukoto()
-  // nextPage()
-  // pray()
+  open()
+  hajime()
+  nextPage()
+  homeitatae()
+  nextPage()
+  omoukoto()
+  nextPage()
+  pray()
+  nextPage()
   musubi()
+
+  back()
+  sleep(3000)
   // log(prayPreface)
   // log(prayThinking)
   // log(prayWords)
   // log(prayEnd)
 }
 
+function clearObj(obj) {
+  let s = JSON.stringify(obj)
+  return JSON.parse(s)
+}
+
+function getViewText(view) {
+  if (view) {
+    return typeof view === "object" ? clearObj(view).mText : view
+  }
+  return view
+}
+
+function clearPray(pray) {
+  return {
+    title: getViewText(pray.title),
+    words: getViewText(pray.words),
+    description: getViewText(pray.description)
+  }
+}
+
 function collectPrayData() {
   dailyPrayData = {
     bible: {
       bibleWords,
-      bibleDescription,
-      bibleQuestion,
+      bibleDescription: clearObj(bibleDescription).mText,
+      bibleQuestion: {
+        question: clearObj(bibleQuestion).question.mText,
+        answer: clearObj(bibleQuestion).answer.map(item => item.mText)
+      },
       biblePray
     },
     pray: {
-      prayPreface,
-      prayPraiseGod,
-      prayThinking,
-      prayWords,
-      prayEnd
+      prayPreface: clearPray(prayPreface),
+      prayPraiseGod: clearPray(prayPraiseGod),
+      prayThinking: clearPray(prayThinking),
+      prayWords: clearPray(prayWords),
+      prayEnd: getViewText(prayEnd)
     }
   }
+  // let json = JSON.stringify(dailyPrayData)
+  // dailyPrayData = JSON.parse(json)
+  // dailyPrayData.bible.bibleDescription = dailyPrayData.bible.bibleDescription.mText
+}
+
+function sendPrayData() {
+  let res = http.postJson(
+    "http://192.168.50.17:3000/bible_pray", dailyPrayData)
+  log(res.body.string())
 }
 
 function main() {
   openApp();
   dealBibleGuide();
-  // dealPrayGuide();
+  dealPrayGuide();
 
   collectPrayData()
+  let json = JSON.stringify(dailyPrayData)
   log(dailyPrayData)
-
+  log(json)
+  sendPrayData()
 
   // log(res);
   // toastLog(app.versionCode);

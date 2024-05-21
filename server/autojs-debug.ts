@@ -16,7 +16,7 @@ import {AddressInfo} from "net";
 import {createOutputChannel, OutputChannel} from "./output-channel";
 import {Extension} from "./main";
 
-const DEBUG = true;
+let DEBUG = process.env.DEBUG == 'true';
 
 function logDebug(message?: unknown, ...optionalParams: unknown[]) {
   if (DEBUG) {
@@ -83,7 +83,7 @@ export class Device extends EventEmitter {
 
   send(type: string, data: unknown): void {
     const message_id = `${Date.now()}_${Math.random()}`;
-    console.log(data);
+    // console.log(data);
     this.connection.sendUTF(JSON.stringify({
       type: type,
       message_id,
@@ -179,7 +179,7 @@ export class AutoJsDebugServer extends EventEmitter {
       } else if (urlObj.pathname == "/runOnDevice") {
         this.handlePostRequest(request, response, (data) => {
           this.extension.runOnDevice(data);
-          console.log(data);
+          // console.log(data);
           response.writeHead(200);
           response.end();
         })
