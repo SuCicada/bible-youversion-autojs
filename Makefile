@@ -7,3 +7,8 @@ jsonbody=$(jq -n --arg content "$filecontent" '{key: $content, otherKey: "otherV
 
 copy-from-device:
 	adb shell am  broadcast -a clipper.get
+
+.PHONY: server
+
+server:
+	node src/server.js

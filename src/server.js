@@ -1,7 +1,8 @@
 const express = require('express');
 const fs = require("node:fs");
+const { format } = require('date-fns');
 const app = express();
-const port = 3000;
+const port = 41403;
 
 // 设置静态文件目录
 
@@ -11,8 +12,16 @@ app.use(express.json());
 // 定义路由
 app.post('/bible_pray', (req, res) => {
   console.log(req.body)
-  let file = `bible_pray_${new Date().getTime()}.json`
+
+  const now = new Date();
+  const formattedDate = format(now, 'yyyy-MM-dd');
+  if(fs.existsSync('data') === false){
+    fs.mkdirSync('data')
+  }
+
+  let file = `data/bible_pray_${formattedDate}.json`
   fs.writeFileSync(file, JSON.stringify(req.body, null, 2))
+
   res.send({
     status: 'ok'
   });
