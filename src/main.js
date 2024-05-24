@@ -1,5 +1,8 @@
 console.log(files.cwd());
 
+// const PRAY_SERVER_API = "http://192.168.50.17:41403/bible_pray"
+const PRAY_SERVER_API = "http://192.168.50.196:41403/bible_pray"
+
 function openApp() {
   // home();
   // sleep(1000);
@@ -38,24 +41,40 @@ function dealBibleGuide() {
   }
 
   function page2() {
-    function enter() {
-      let res = click(377, 1362)
-      toastLog("enter 続きを読む", res);
+    function gotoPlanMode() {
+      function enter() {
+        let res = click(377, 1362)
+        toastLog("enter 続きを読む", res);
+      }
+
+      enter()
+      sleep(5000)
+
+      // let res = className("ScrollView").findOne().children()[1]
+      let views = className("android.view.View").depth(8).find()
+      let res = views[1]
+      // console.log(res)
+      // console.log(res.contentDescription)
+      bibleDescription = res.contentDescription
+
+      sleep(2000)
+      back()
+      sleep(2000)
     }
 
-    enter()
-    sleep(5000)
+    function gotoDevotionMode() {
+      let views = className("android.view.View").depth(10).find()
+      let res = views[0]
+      bibleDescription = res.contentDescription
+      sleep(2000)
+    }
 
-    // let res = className("ScrollView").findOne().children()[1]
-    let views = className("android.view.View").depth(8).find()
-    let res = views[1]
-    // console.log(res)
-    // console.log(res.contentDescription)
-    bibleDescription = res.contentDescription
-
-    sleep(2000)
-    back()
-    sleep(2000)
+    let views = className("android.view.View").depth(7).find()
+    if (views.size() === 2 && getViewText(views[1]) === "デボーション") {
+      gotoDevotionMode()
+    } else {
+      gotoPlanMode()
+    }
   }
 
   function furikaeri() {
@@ -102,6 +121,7 @@ function dealBibleGuide() {
 
   run()
   // page2()
+
   // console.show();
   // console.log("wewewee")
   // log(bibleWords)
@@ -127,7 +147,7 @@ function dealPrayGuide() {
   function hajime() {
     let views = className("android.view.View").depth(8).findOne().children()
     prayPreface = views[1].contentDescription
-    log("prayPreface",prayPreface)
+    log("prayPreface", prayPreface)
   }
 
   function nextPage() {
@@ -226,6 +246,9 @@ function clearObj(obj) {
 
 function getViewText(view) {
   if (view) {
+    if (view.contentDescription) {
+      view = view.contentDescription
+    }
     return typeof view === "object" ? clearObj(view).mText : view
   }
   return view
@@ -265,14 +288,19 @@ function collectPrayData() {
 
 function sendPrayData() {
   let res = http.postJson(
-    "http://192.168.50.17:3000/bible_pray", dailyPrayData)
+    PRAY_SERVER_API, dailyPrayData)
   log(res.body.string())
 }
 
 function main() {
   openApp();
+  toastLog("open app over");
+
   dealBibleGuide();
+  toastLog("dealBibleGuide over");
+
   dealPrayGuide();
+  toastLog("dealPrayGuide over");
 
   collectPrayData()
   let json = JSON.stringify(dailyPrayData)
@@ -280,22 +308,21 @@ function main() {
   log(json)
   sendPrayData()
 
-  // log(res);
-  // toastLog(app.versionCode);
-
-  // for (let i = 0; i < 5; i++) {
-  //     let a = waitForPackage(app_package);
-  //     toastLog("wait",a);
-  // }
-  // swipe(500, 1000, 500, 500, 1000);
-  // toastLog("test");
-  // Tap(500, 500);
-  // sleep(3000);
+  toastLog("all over");
 }
 
-// require("./utils.js");
-// toastLog(app);
-main();
+function test() {
+  dealBibleGuide();
+  collectPrayData()
+
+  log(dailyPrayData)
+  log(JSON.stringify(dailyPrayData))
+  sendPrayData()
+}
+
+// test()
+main()
+
 // let a = className("android.view.View").depth(10).findOne()
 // toastLog(a);
 // Camera()
