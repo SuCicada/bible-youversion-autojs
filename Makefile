@@ -1,5 +1,7 @@
-include .env
-export
+ifneq ("$(wildcard .env)","")
+	include .env
+	export
+endif
 
 upload:
 	curl localhost:9317/runOnDevice -X POST -H "Content-Type: application/json" \
@@ -13,13 +15,18 @@ copy-from-device:
 
 .PHONY: server
 
-server:
-	node src/server.js
+install:
+	yarn
+start:
+	node server/server.js
 
 
 upload-to-device:
 	adb push ./src/main.js /sdcard/script/bible-youversion-autojs.js
 
-deploy:
-	$(call upload, src/server.js, APP/bible-youversion-autojs/)
-	$(call ssh, supervisorctl restart bible-youversion-autojs)
+#deploy:
+	#$(call upload, src/server.js, APP/bible-youversion-autojs/)
+	#$(call ssh, supervisorctl restart bible-youversion-autojs)
+
+test-server:
+	http POST localhost:41403/bible_pray @data/bible_pray_2024-06-01.json

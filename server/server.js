@@ -1,6 +1,9 @@
 const express = require('express');
 const fs = require("node:fs");
-const { format } = require('date-fns');
+const {format} = require('date-fns');
+const {uploadFileToS3} = require("./s3");
+const path = require("node:path");
+const {getDailyS3KeyName, getDailyFileName} = require("./utils");
 const app = express();
 const port = 41403;
 
@@ -13,14 +16,16 @@ app.use(express.json());
 app.post('/bible_pray', (req, res) => {
   console.log(req.body)
 
-  const now = new Date();
-  const formattedDate = format(now, 'yyyy-MM-dd');
-  if(fs.existsSync('data') === false){
+  if (fs.existsSync('data') === false) {
     fs.mkdirSync('data')
   }
 
-  let file = `data/bible_pray_${formattedDate}.json`
+
+  let file = getDailyFileName()
   fs.writeFileSync(file, JSON.stringify(req.body, null, 2))
+
+  let key = getDailyS3KeyName();
+  uploadFileToS3(process.env.AWS_S3_BUCKET_NAME, key, file);
 
   res.send({
     status: 'ok'
