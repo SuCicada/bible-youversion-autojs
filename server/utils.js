@@ -1,11 +1,14 @@
 const {format} = require("date-fns");
-const path = require("node:path");
+const path = require("path");
+
+function getDailyDate() {
+  return format(new Date(), 'yyyy-MM-dd');
+}
 
 function getDailyFileName(date) {
   let formattedDate = date;
   if (!date) {
-    const now = new Date();
-    formattedDate = format(now, 'yyyy-MM-dd');
+    formattedDate = getDailyDate();
   }
   return `data/bible_pray_${formattedDate}.json`;
 }
@@ -16,6 +19,7 @@ function getDailyS3KeyName(date) {
 }
 
 module.exports = {
+  getDailyDate,
   getDailyFileName,
   getDailyS3KeyName
 }

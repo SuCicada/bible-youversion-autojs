@@ -1,9 +1,8 @@
 const express = require('express');
 const fs = require("node:fs");
-const {format} = require('date-fns');
 const {uploadFileToS3} = require("./s3");
-const path = require("node:path");
-const {getDailyS3KeyName, getDailyFileName} = require("./utils");
+const {getDailyS3KeyName, getDailyFileName, getDailyDate} = require("./utils");
+let alert = require('./alert')
 const app = express();
 const port = 41403;
 
@@ -13,7 +12,7 @@ const port = 41403;
 app.use(express.json());
 
 // 定义路由
-app.post('/bible_pray', (req, res) => {
+app.post('/bible_pray', async (req, res) => {
   console.log(req.body)
 
   if (fs.existsSync('data') === false) {
@@ -26,6 +25,8 @@ app.post('/bible_pray', (req, res) => {
 
   let key = getDailyS3KeyName();
   uploadFileToS3(process.env.AWS_S3_BUCKET_NAME, key, file);
+
+  await alert({date:getDailyDate(),file,key})
 
   res.send({
     status: 'ok'
