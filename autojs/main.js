@@ -43,7 +43,8 @@ function dealBibleGuide() {
   function page2() {
     function gotoPlanMode() {
       function enter() {
-        let res = click(377, 1362)
+        // let res = click(377, 1362)
+        let res = click(377, 1420)
         toastLog("enter 続きを読む", res);
       }
 
