@@ -13,20 +13,22 @@ app.use(express.json());
 
 // 定义路由
 app.post('/bible_pray', async (req, res) => {
-  console.log(req.body)
+  let data = req.body
+  console.log(data)
 
   if (fs.existsSync('data') === false) {
     fs.mkdirSync('data')
   }
 
+  let date = data.date??getDailyDate()
 
-  let file = getDailyFileName()
-  fs.writeFileSync(file, JSON.stringify(req.body, null, 2))
+  let file = getDailyFileName(date)
+  fs.writeFileSync(file, JSON.stringify(data, null, 2))
 
-  let key = getDailyS3KeyName();
+  let key = getDailyS3KeyName(date);
   uploadFileToS3(process.env.AWS_S3_BUCKET_NAME, key, file);
 
-  await alert({date:getDailyDate(),file,key})
+  await alert({date,file,key})
 
   res.send({
     status: 'ok'

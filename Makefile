@@ -21,8 +21,14 @@ start:
 	node server/server.js
 
 
-upload-to-device:
-	adb push ./src/main.js /sdcard/script/bible-youversion-autojs.js
+#upload-to-device:
+	#adb push ./autojs/main.js /sdcard/script/bible-youversion-autojs.js
+
+#lib_file = moment.js
+lib_file = bible-youversion-autojs.js
+upload-to-device-remote:
+	$(call upload, autojs/$(lib_file), /tmp/$(lib_file) )
+	$(call ssh, adb -s R9JN60JQB3J push /tmp/$(lib_file) /sdcard/script/$(lib_file) )
 
 #deploy:
 	#$(call upload, src/server.js, APP/bible-youversion-autojs/)

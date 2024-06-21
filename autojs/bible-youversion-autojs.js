@@ -1,4 +1,5 @@
 console.log(files.cwd());
+const moment = require("moment.js")
 
 // const PRAY_SERVER_API = "http://192.168.50.17:41403/bible_pray"
 const PRAY_SERVER_API = "http://192.168.50.196:41403/bible_pray"
@@ -275,12 +276,13 @@ function collectPrayData() {
       biblePray
     },
     pray: {
-      prayPreface: clearPray(prayPreface),
+      prayPreface: getViewText(prayPreface),
       prayPraiseGod: clearPray(prayPraiseGod),
       prayThinking: clearPray(prayThinking),
       prayWords: clearPray(prayWords),
       prayEnd: getViewText(prayEnd)
-    }
+    },
+    date: moment().format("YYYY-MM-DD")
   }
   // let json = JSON.stringify(dailyPrayData)
   // dailyPrayData = JSON.parse(json)
@@ -288,6 +290,10 @@ function collectPrayData() {
 }
 
 function sendPrayData() {
+  let filename = `/sdcard/bible-youversion-autojs/bible_pray_${dailyPrayData.date}.json`
+  files.createWithDirs("/sdcard/bible-youversion-autojs/")
+  files.write(filename, JSON.stringify(dailyPrayData))
+
   let res = http.postJson(
     PRAY_SERVER_API, dailyPrayData)
   log(res.body.string())
@@ -313,12 +319,13 @@ function main() {
 }
 
 function test() {
-  dealBibleGuide();
+  // dealBibleGuide();
+  dealPrayGuide();
   collectPrayData()
 
   log(dailyPrayData)
   log(JSON.stringify(dailyPrayData))
-  sendPrayData()
+  // sendPrayData()
 }
 
 // test()
