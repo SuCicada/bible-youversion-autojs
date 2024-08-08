@@ -2,7 +2,7 @@ console.log(files.cwd());
 const moment = require("moment.js")
 
 // const PRAY_SERVER_API = "http://192.168.50.17:41403/bible_pray"
-const PRAY_SERVER_API = "http://192.168.50.196:41403/bible_pray"
+const PRAY_SERVER_API = "http://server.sucicada.me:41403/bible_pray"
 
 function openApp() {
   // home();
@@ -199,6 +199,10 @@ function dealPrayGuide() {
   function pray() {
     let views = className("android.view.View").depth(9).find()
     let title = views[0].contentDescription
+    if (!getViewText(title).includes("祈り")) {
+      toastLog("pray not exist, skip");
+      return false
+    }
     if (views.size() >= 3) {
       let words = views[1].children().map(child => child.contentDescription).join("")
       let description = views[2].contentDescription
@@ -211,6 +215,7 @@ function dealPrayGuide() {
         title, description,
       }
     }
+    return true
     // let words = views[1].contentDescription
     // prayWords = {
     //   title, words,
@@ -222,19 +227,29 @@ function dealPrayGuide() {
     prayEnd = views[1].contentDescription
   }
 
-  open()
-  hajime()
-  nextPage()
-  homeitatae()
-  nextPage()
-  omoukoto()
-  nextPage()
-  pray()
-  nextPage()
-  musubi()
-
-  back()
-  sleep(3000)
+  return {
+    open,
+    hajime,
+    nextPage,
+    homeitatae,
+    omoukoto,
+    pray,
+    musubi,
+    back
+  }
+  // open()
+  // hajime()
+  // nextPage()
+  // homeitatae()
+  // nextPage()
+  // omoukoto()
+  // nextPage()
+  // pray()
+  // nextPage()
+  // musubi()
+  //
+  // back()
+  // sleep(3000)
   // log(prayPreface)
   // log(prayThinking)
   // log(prayWords)
@@ -299,6 +314,30 @@ function sendPrayData() {
   log(res.body.string())
 }
 
+function run_dealPrayGuide() {
+  const run = dealPrayGuide()
+  run.open()
+
+  run.hajime()
+  run.nextPage()
+
+  run.homeitatae()
+  run.nextPage()
+
+  run.omoukoto()
+  run.nextPage()
+
+  success = run.pray()
+  if (success){
+    run.nextPage()
+  }
+
+  run.musubi()
+
+  run.back()
+  sleep(3000)
+}
+
 function main() {
   openApp();
   toastLog("open app over");
@@ -306,7 +345,7 @@ function main() {
   dealBibleGuide();
   toastLog("dealBibleGuide over");
 
-  dealPrayGuide();
+  run_dealPrayGuide();
   toastLog("dealPrayGuide over");
 
   collectPrayData()
@@ -320,7 +359,11 @@ function main() {
 
 function test() {
   // dealBibleGuide();
-  dealPrayGuide();
+  // dealPrayGuide();
+  // collectPrayData()
+  const run = dealPrayGuide()
+  // run.pray()
+  run_dealPrayGuide();
   collectPrayData()
 
   log(dailyPrayData)

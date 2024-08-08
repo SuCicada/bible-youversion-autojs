@@ -15,6 +15,7 @@ import os from 'os';
 import {AddressInfo} from "net";
 import {createOutputChannel, OutputChannel} from "./output-channel";
 import {Extension} from "./main";
+import * as fs from "node:fs";
 
 let DEBUG = process.env.DEBUG == 'true';
 
@@ -83,7 +84,7 @@ export class Device extends EventEmitter {
 
   send(type: string, data: unknown): void {
     const message_id = `${Date.now()}_${Math.random()}`;
-    // console.log(data);
+    console.log(data);
     this.connection.sendUTF(JSON.stringify({
       type: type,
       message_id,
@@ -109,6 +110,12 @@ export class Device extends EventEmitter {
 
   sendCommand(command: string, data: object): void {
     data = Object(data);
+    const script_file = data['script_file'];
+    console.log("script_file: ", script_file);
+
+    const script = fs.readFileSync(script_file, 'utf-8');
+    data['script'] = script;
+
     data['command'] = command;
     this.send('command', data);
   }

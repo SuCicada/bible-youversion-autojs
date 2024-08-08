@@ -6,7 +6,8 @@ endif
 upload:
 	curl localhost:9317/runOnDevice -X POST -H "Content-Type: application/json" \
 		 --data-binar '{"id":"main","name":"main", \
-			"script":"@/main.js"}' \
+			"script":"@autojs/bible-youversion-autojs.js"}'
+
 filecontent=$(cat /path/to/yourfile.txt | jq -Rs .)
 jsonbody=$(jq -n --arg content "$filecontent" '{key: $content, otherKey: "otherValue"}')
 
@@ -36,3 +37,7 @@ upload-to-device-remote:
 
 test-server:
 	http POST localhost:41403/bible_pray @data/bible_pray_2024-06-01.json
+
+
+start-autojs-server:
+	ts-node autojs-server/server.ts
