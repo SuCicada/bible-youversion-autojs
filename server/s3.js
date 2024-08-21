@@ -46,8 +46,24 @@ async function getFileFromS3(bucketName, key) {
     });
   });
 }
+async function listFilesFromS3(bucketName,prefix) {
+  const params = {
+    Bucket: bucketName,
+    Prefix: prefix,
+  };
 
+  return new Promise((resolve, reject) => {
+    S3.listObjects(params, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data.Contents.map(item => item.Key));
+      }
+    });
+  });
+}
 module.exports = {
+  listFilesFromS3,
   uploadFileToS3,
   getFileFromS3
 }

@@ -3,6 +3,7 @@ const fs = require("node:fs");
 const {uploadFileToS3} = require("./s3");
 const {getDailyS3KeyName, getDailyFileName, getDailyDate} = require("./utils");
 let alert = require('./alert')
+const {setRoutes} = require("./route");
 const app = express();
 const port = 41403;
 
@@ -35,6 +36,7 @@ app.post('/bible_pray', async (req, res) => {
   });
 });
 
+setRoutes(app);
 
 // 启动服务器
 app.listen(port, "0.0.0.0", () => {
