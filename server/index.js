@@ -1,5 +1,6 @@
 const express = require('express');
 const fs = require("node:fs");
+const cors = require('cors');
 const {uploadFileToS3} = require("./s3");
 const {getDailyS3KeyName, getDailyFileName, getDailyDate} = require("./utils");
 let alert = require('./alert')
@@ -9,9 +10,9 @@ const port = 41403;
 
 // 设置静态文件目录
 
+app.use(cors())
 // 解析 JSON 请求体
 app.use(express.json());
-
 // 定义路由
 app.post('/bible_pray', async (req, res) => {
   let data = req.body
