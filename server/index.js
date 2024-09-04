@@ -22,7 +22,7 @@ app.post('/bible_pray', async (req, res) => {
     fs.mkdirSync('data')
   }
 
-  let date = data.date??getDailyDate()
+  let date = data.date ?? getDailyDate()
 
   let file = getDailyFileName(date)
   fs.writeFileSync(file, JSON.stringify(data, null, 2))
@@ -30,7 +30,10 @@ app.post('/bible_pray', async (req, res) => {
   let key = getDailyS3KeyName(date);
   uploadFileToS3(process.env.AWS_S3_BUCKET_NAME, key, file);
 
-  await alert({date,file,key})
+  await alert({
+    date, file, key,
+    body: `# [bible-autojs] Finish 祈り 🙏${data.date} `,
+  })
 
   res.send({
     status: 'ok'
