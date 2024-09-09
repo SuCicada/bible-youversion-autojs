@@ -10,9 +10,8 @@ adb connect 192.168.50.100:5555
 export ANDROID_SERIAL=192.168.50.100:5555
 
 
-adb push ./src/main.js /sdcard/script
+adb push ./autojs/bible-youversion-autojs.js /sdcard/script/bible-youversion-autojs.js
 
 ## docker
 ```bash
--v /home/ubuntu/APP/Minecraft/:/mnt/Minecraft/ 
 ```
