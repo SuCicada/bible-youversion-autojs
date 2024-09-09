@@ -47,7 +47,8 @@ async function upsertPrayRecord(date, title, furigana) {
   }
 }
 
-async function getPrayRecord(date, type, title) {
+async function getPrayRecord(date, title) {
+  const type = 'furigana';
   try {
     const res = await pool.query(`SELECT ${type}
                                   FROM pray
@@ -55,7 +56,11 @@ async function getPrayRecord(date, type, title) {
     if (res.rowCount === 0) {
       return null;
     }
-    return res.rows[0][type][title];
+    if (title) {
+      return res.rows[0][type][title];
+    } else {
+      return res.rows[0][type];
+    }
   } catch (err) {
     console.error('Error executing query', err.stack);
     return null;
