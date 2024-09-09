@@ -2,6 +2,8 @@ const {listFilesFromS3, getFileFromS3} = require("./s3");
 const path = require("path");
 const {getDailyFileName, getDailyS3KeyName, getDailyDate} = require("./utils");
 let alert = require('./alert')
+const {upsertPrayRecord, getPrayRecord} = require("./sql");
+const express = require("express");
 
 function setRoutes(app) {
   app.get('/list', async (req, res) => {
@@ -51,6 +53,28 @@ function setRoutes(app) {
       }
     }
   })
+
+
+  const recordRouter = express.Router();
+
+  recordRouter.post("/save/:date", async (req, res) => {
+    const date = req.params.date
+    const title = req.body.title
+    const furigana = req.body.furigana
+    const result = await upsertPrayRecord(date, title, furigana)
+    console.log("save", date, title, furigana, result)
+    res.json(result)
+  })
+  recordRouter.get("/get/:date", async (req, res) => {
+    const date = req.params.date
+    const type = req.query.type
+    const title = req.query.title
+    const result = await getPrayRecord(date,type,title)
+    console.log("get_record", date, result)
+    res.json({status: 'ok', data: result})
+  })
+
+  app.use("/record", recordRouter);
 }
 
 module.exports = {
