@@ -199,7 +199,11 @@ function dealPrayGuide() {
   function pray() {
     let views = className("android.view.View").depth(9).find()
     let title = views[0].contentDescription
-    if (!getViewText(title).includes("祈り")) {
+    let titleStr = getViewText(title)
+    if (!(
+      titleStr.includes("祈り") ||
+      titleStr.includes("神に") // 神に感謝しましょう
+    )) {
       toastLog("pray not exist, skip");
       return false
     }
@@ -328,7 +332,7 @@ function run_dealPrayGuide() {
   run.nextPage()
 
   success = run.pray()
-  if (success){
+  if (success) {
     run.nextPage()
   }
 
