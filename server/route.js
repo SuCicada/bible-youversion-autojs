@@ -2,7 +2,7 @@ const {listFilesFromS3, getFileFromS3} = require("./s3");
 const path = require("path");
 const {getDailyFileName, getDailyS3KeyName, getDailyDate} = require("./utils");
 let alert = require('./alert')
-const {upsertPrayRecord, getPrayRecord} = require("./sql");
+const {upsertPrayRecord, getPrayRecord, saveAudio} = require("./sql");
 const express = require("express");
 const {format} = require("date-fns");
 
@@ -76,15 +76,27 @@ function setRoutes(app) {
     console.log("get_record", date, title, result)
     res.json({status: 'ok', data: result})
   })
+  recordRouter.post("/save-audio", async (req, res) => {
+    let date = req.body.date
+    let title = req.body.title
+    let audio = req.body.audio
+    date = dateTranslate(date)
+    // const type = req.query.type
+    const result = await saveAudio(date, title, audio)
+    console.log("save-audio", date, title, result)
+    res.json({status: 'ok', data: result})
+  })
 
   app.use("/record", recordRouter);
 }
+
 function dateTranslate(date) {
   if (date.includes('-')) {
     return format(new Date(date), 'yyyyMMdd');
   }
   return date;
 }
+
 module.exports = {
   setRoutes
 }

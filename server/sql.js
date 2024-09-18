@@ -67,7 +67,24 @@ async function getPrayRecord(date, title) {
   }
 }
 
+async function saveAudio(date, title, audio) {
+  try {
+    const res = await pool.query(`
+      INSERT INTO audio (date, title, audio)
+      VALUES ($1, $2, $3) ON CONFLICT (date, title) 
+      DO
+      UPDATE SET audio = EXCLUDED.audio
+    `, [date, title, audio]);
+    console.log('Record inserted', res);
+    return {status: 'ok'};
+  } catch (err) {
+    console.error('Error executing query', err.stack);
+    return null;
+  }
+}
+
 module.exports = {
   upsertPrayRecord,
-  getPrayRecord
+  getPrayRecord,
+  saveAudio
 }
