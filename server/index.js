@@ -11,8 +11,14 @@ const port = 41403;
 // 设置静态文件目录
 
 app.use(cors())
+app.use((req, res, next) => {
+  console.log(`Request Content-Length: ${req.headers['content-length']}`);
+  next();
+});
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 // 解析 JSON 请求体
-app.use(express.json());
+// app.use(express.json());
 // 定义路由
 app.post('/bible_pray', async (req, res) => {
   let data = req.body

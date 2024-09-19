@@ -2,7 +2,7 @@ const {listFilesFromS3, getFileFromS3} = require("./s3");
 const path = require("path");
 const {getDailyFileName, getDailyS3KeyName, getDailyDate} = require("./utils");
 let alert = require('./alert')
-const {upsertPrayRecord, getPrayRecord, saveAudio} = require("./sql");
+const {upsertPrayRecord, getPrayRecord, saveAudio, getAudio} = require("./sql");
 const express = require("express");
 const {format} = require("date-fns");
 
@@ -76,16 +76,37 @@ function setRoutes(app) {
     console.log("get_record", date, title, result)
     res.json({status: 'ok', data: result})
   })
-  recordRouter.post("/save-audio", async (req, res) => {
+  recordRouter.post("/audio", async (req, res) => {
     let date = req.body.date
     let title = req.body.title
-    let audio = req.body.audio
+    let audioBase64 = req.body.audio
+    if (!date || !title || !audioBase64) {
+      res.json({status: 'error', message: 'date, title and audio required'})
+      return
+    }
     date = dateTranslate(date)
+
+    let audioBytes = Buffer.from(audioBase64, 'base64');
     // const type = req.query.type
-    const result = await saveAudio(date, title, audio)
+    const result = await saveAudio(date, title, audioBytes)
     console.log("save-audio", date, title, result)
-    res.json({status: 'ok', data: result})
+    // res.json({status: 'ok', data: result})
+    res.json(result)
   })
+  recordRouter.get("/audio", async (req, res) => {
+    let date = req.query.date
+    let title = req.query.title
+    if (!date || !title) {
+      res.json({status: 'error', message: 'date and title required'})
+      return
+    }
+    date = dateTranslate(date)
+    const result = await getAudio(date, title)
+    const audioBase64 = result.toString('base64')
+    console.log("get-audio", date, title, result)
+    res.json({status: 'ok', data: audioBase64})
+  })
+
 
   app.use("/record", recordRouter);
 }

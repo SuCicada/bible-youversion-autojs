@@ -12,7 +12,13 @@ const submit = Query.prototype.submit;
 Query.prototype.submit = function () {
   const text = this.text;
   const values = this.values;
-  const query = values.reduce((q, v, i) => q.replace(`$${i + 1}`, v), text);
+  const query = values.reduce((q, v, i) =>{
+    let vv = v;
+    if (v instanceof Uint8Array) {
+      vv = '[Uint8Array]';
+    }
+    return q.replace(`$${i + 1}`, vv);
+  }, text);
   console.log(query);
   submit.apply(this, arguments);
 };
@@ -83,8 +89,25 @@ async function saveAudio(date, title, audio) {
   }
 }
 
+async function getAudio(date, title) {
+  try {
+    const res = await pool.query(`
+      SELECT audio
+      FROM audio
+      WHERE date = $1 AND title = $2
+      limit 1
+    `, [date, title]);
+    console.log('Record inserted', res);
+    return res.rows[0].audio;
+  } catch (err) {
+    console.error('Error executing query', err.stack);
+    return null;
+  }
+}
+
 module.exports = {
   upsertPrayRecord,
   getPrayRecord,
-  saveAudio
+  saveAudio,
+  getAudio
 }

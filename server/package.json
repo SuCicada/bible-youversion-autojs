@@ -1,5 +1,7 @@
 {
-  "scripts": {},
+  "scripts": {
+    "build": "webpack"
+  },
   "devDependencies": {
     "nodemon": "^3.1.4",
     "webpack": "^5.93.0",
